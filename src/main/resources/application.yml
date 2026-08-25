@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: rikkeipay-assistant
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:demo-key-not-used}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  # A custom bounded BatchSpanProcessor is installed below.
+  otlp:
+    tracing:
+      export:
+        enabled: false
+
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:3000/api/public/otel/v1/traces}
+      headers:
+        # Required format: Basic base64("publicKey:secretKey")
+        authorization: ${OTEL_EXPORTER_OTLP_AUTHORIZATION}
+        x-langfuse-ingestion-version: "4"
+      timeout: 3s
+  bsp:
+    max-queue-size: 2048
+    schedule-delay: 2s
+    max-export-batch-size: 512
+    export-timeout: 3s
+
+logging:
+  level:
+    io.opentelemetry.exporter.internal.http: INFO
+    com.example.demo.it213_session11_bai1: INFO
